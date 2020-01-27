@@ -38,6 +38,9 @@ beehive
 # Jetbrains IDEs
 .idea
 
+# VSCode IDE
+.vscode
+
 # Embedded assets
 api/bindata.go
 

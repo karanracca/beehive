@@ -32,7 +32,8 @@ import (
 type OpenweathermapBee struct {
 	bees.Bee
 
-	current *owm.CurrentWeatherData
+	current  *owm.CurrentWeatherData
+	forecast *owm.ForecastWeatherData
 
 	unit     string
 	language string
@@ -58,6 +59,18 @@ func (mod *OpenweathermapBee) Action(action bees.Action) []bees.Placeholder {
 
 		mod.TriggerCurrentWeatherEvent()
 
+	case "get_forecast_weather":
+		var location string
+		action.Options.Bind("location", &location)
+
+		err := mod.forecast.DailyByName(location, 40)
+		if err != nil {
+			mod.LogErrorf("Failed to fetch weather: %v", err)
+			return nil
+		}
+
+		mod.TriggerForecastWeatherEvent()
+
 	default:
 		panic("Unknown action triggered in " + mod.Name() + ": " + action.Name)
 	}
@@ -75,6 +88,13 @@ func (mod *OpenweathermapBee) Run(eventChan chan bees.Event) {
 		return
 	}
 	mod.current = current
+
+	forecast, err := owm.NewForecast("5", mod.unit, mod.language, mod.key)
+	if err != nil {
+		mod.LogErrorf("Failed to create new forecast service: %v", err)
+		return
+	}
+	mod.forecast = forecast
 
 	select {
 	case <-mod.SigChan:

@@ -269,6 +269,33 @@ func (factory *OpenweathermapBeeFactory) Events() []bees.EventDescriptor {
 				},
 			},
 		},
+		{
+			Namespace:   factory.Name(),
+			Name:        "forecast_weather",
+			Description: "Forecast weather holds measurement informations",
+			Options: []bees.PlaceholderDescriptor{
+				{
+					Name:        "city",
+					Type:        "string",
+					Description: "City",
+				},
+				{
+					Name:        "isSnow",
+					Type:        "bool",
+					Description: "Is it going to snow?",
+				},
+				{
+					Name:        "isRain",
+					Type:        "bool",
+					Description: "Is it going to rain?",
+				},
+				{
+					Name:        "forecastWeather",
+					Type:        "string",
+					Description: "Weather information",
+				},
+			},
+		},
 	}
 	return events
 }
@@ -280,6 +307,19 @@ func (factory *OpenweathermapBeeFactory) Actions() []bees.ActionDescriptor {
 			Namespace:   factory.Name(),
 			Name:        "get_current_weather",
 			Description: "fetch current weather",
+			Options: []bees.PlaceholderDescriptor{
+				{
+					Name:        "location",
+					Description: "desired location",
+					Type:        "string",
+					Mandatory:   true,
+				},
+			},
+		},
+		{
+			Namespace:   factory.Name(),
+			Name:        "get_forecast_weather",
+			Description: "fetch forecast weather",
 			Options: []bees.PlaceholderDescriptor{
 				{
 					Name:        "location",

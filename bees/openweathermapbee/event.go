@@ -22,6 +22,7 @@
 package openweathermapbee
 
 import (
+	"fmt"
 	"github.com/muesli/beehive/bees"
 
 	owm "github.com/briandowns/openweathermap"
@@ -172,6 +173,49 @@ func (mod *OpenweathermapBee) TriggerCurrentWeatherEvent() {
 				Name:  "key",
 				Type:  "string",
 				Value: mod.current.Key,
+			},
+		},
+	}
+	mod.evchan <- ev
+
+	for _, v := range mod.current.Weather {
+		mod.TriggerWeatherInformationEvent(&v)
+	}
+}
+
+// TriggerForecastWeatherEvent triggers all forecast weather events
+func (mod *OpenweathermapBee) TriggerForecastWeatherEvent() {
+
+	formattedWeather5Data := FormattedWeather5Data{snow: &Condition{}, rain: &Condition{}, weather: &Weather{}}
+
+	err := formattedWeather5Data.GetForecaseWeatherData(mod.forecast.ForecastWeatherJson)
+	if err != nil {
+		panic(fmt.Sprintf("Failed in %v Forecast weather: %v", mod.Name(), err))
+	}
+
+	ev := bees.Event{
+		Bee:  mod.Name(),
+		Name: "forecast_weather",
+		Options: []bees.Placeholder{
+			{
+				Name:  "city",
+				Type:  "string",
+				Value: formattedWeather5Data.city,
+			},
+			{
+				Name:  "isSnow",
+				Type:  "bool",
+				Value: formattedWeather5Data.snow.isPresent,
+			},
+			{
+				Name:  "isRain",
+				Type:  "bool",
+				Value: formattedWeather5Data.rain.isPresent,
+			},
+			{
+				Name:  "forecastWeather",
+				Type:  "string",
+				Value: formattedWeather5Data.String(),
 			},
 		},
 	}
